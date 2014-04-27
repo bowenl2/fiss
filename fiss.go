@@ -27,6 +27,11 @@ func (l ByFilename) Less(i, j int) bool {
 	return l[i].Name() < l[j].Name()
 }
 
+func recursiveDirectoryList(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+}
+
 func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 
