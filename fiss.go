@@ -93,7 +93,7 @@ func main() {
 		}
 
 		if fileInfo.IsDir() {
-			handleDir(rw, req)
+			handleDir(fileInfo, rw, req)
 			return
 		}
 
