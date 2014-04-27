@@ -23,8 +23,8 @@ func (l ByFilename) Swap(i, j int) {
 	l[i], l[j] = l[j], l[i]
 }
 
-func (l ByFilename) Less(i, j) bool {
-	l[i].Name() < l[j].Name()
+func (l ByFilename) Less(i, j int) bool {
+	return l[i].Name() < l[j].Name()
 }
 
 func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
