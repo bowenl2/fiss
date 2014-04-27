@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ var (
 	rootPath = "/"
 )
 
+// Directory List
 type ByFilename []os.FileInfo
 
 func (l ByFilename) Len() int {
@@ -27,6 +29,13 @@ func (l ByFilename) Less(i, j int) bool {
 	return l[i].Name() < l[j].Name()
 }
 
+type DirectoryList struct {
+	Base        os.FileInfo
+	Files       []os.FileInfo
+	Directories []os.FileInfo
+	Others      []os.FileInfo
+}
+
 func recursiveDirectoryList(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
@@ -34,6 +43,10 @@ func recursiveDirectoryList(fileInfo os.FileInfo, rw http.ResponseWriter, _ *htt
 
 func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	// Template
+	tmpl := template.New("DirectoryList")
+	tmp, _ = tmpl.ParseFiles("templates/directory-list.html")
 
 	io.WriteString(rw, "Hello directory<br/>")
 	dir, err := os.Open(fileInfo.Name())
@@ -64,9 +77,12 @@ func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 		}
 	}
 
-	io.WriteString(rw, fmt.Sprintf("%v<br/>", fileEntries))
-	io.WriteString(rw, fmt.Sprintf("%v<br/>", dirEntries))
-	io.WriteString(rw, fmt.Sprintf("%v<br/>", otherEntries))
+	dl := DirectoryList{Base: fileInfo, Files: fileEntries, Directories: dirEntries, Others: otherEntries}
+	err = tmpl.Execute(rw, dl)
+	if err != nil {
+		fmt.Errorf("%v", err)
+	}
+
 }
 
 func handleFile(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
