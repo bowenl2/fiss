@@ -20,7 +20,7 @@ func (l ByFilename) Len() int {
 }
 
 func (l ByFilename) Swap(i, j int) {
-	l[i], l[j] = a[j], a[i]
+	l[i], l[j] = l[j], l[i]
 }
 
 func (l ByFilename) Less(i, j) bool {
