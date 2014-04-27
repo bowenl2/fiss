@@ -51,11 +51,11 @@ func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	// TODO: Sort Files
 	for _, file := range files {
 		if file.Mode().IsRegular() {
-			append(fileEntries, file)
+			fileEntries = append(fileEntries, file)
 		} else if file.Mode().IsDir() {
-			append(dirEntries, file)
+			dirEntries = append(dirEntries, file)
 		} else {
-			append(otherEntries, file)
+			otherEntries = append(otherEntries, file)
 		}
 	}
 
