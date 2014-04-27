@@ -65,7 +65,7 @@ func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 }
 
 func handleFile(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
-	rw.Header().Set("Content-Length", size(fileInfo.Size()))
+	rw.Header().Set("Content-Length", string(fileInfo.Size()))
 	handle, err := os.Open(fileInfo.Name())
 	if err != nil {
 		rw.WriteHeader(500)
