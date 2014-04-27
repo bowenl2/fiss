@@ -69,7 +69,7 @@ func handleFile(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	handle, err := os.Open(fileInfo.Name())
 	if err != nil {
 		rw.WriteHeader(500)
-		io.WriteString(rw, error.Error())
+		io.WriteString(rw, err.Error())
 	}
 	io.Copy(rw, handle)
 }
