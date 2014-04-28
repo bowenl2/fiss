@@ -79,7 +79,7 @@
 			</thead>
 			<tbody>
 				{{range .Entries}}
-				<tr title="{{printf "%#v" .Sys}}">
+				<tr title="{{printf "%#v" .Sys}}" data-path="{{abspath .}}">
 					<td>{{.Name}}</td>
 					<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
 					{{if .IsDir}}
