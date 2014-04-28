@@ -43,17 +43,68 @@ type DirectoryList struct {
 	Entries  []os.FileInfo
 }
 
-func recursiveDirectoryList(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+func recursiveDirectoryList(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
 }
 
-func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
-	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+// func fileModeString(os.FileMode) {
+// 	modeMap := map[int]string{
+// 		os.ModeDir:        "d", // is a directory
+// 		os.ModeAppend:     "a", // append-only
+// 		os.ModeExclusive:  "l", // exclusive use
+// 		os.ModeTemporary:  "T", // temporary file (not backed up)
+// 		os.ModeSymlink:    "L", // symbolic link
+// 		os.ModeDevice:     "D", // device file
+// 		os.ModeNamedPipe:  "p", // named pipe (FIFO)
+// 		os.ModeSocket:     "S", // Unix domain socket
+// 		os.ModeSetuid:     "u", // setuid
+// 		os.ModeSetgid:     "g", // setgid
+// 		os.ModeCharDevice: "c", // Unix character device, when ModeDevice is set
+// 		os.ModeSticky:     "t", // sticky
+// 	}
 
-	// Template
-	tmpl := template.New("DirectoryList")
-	tmp, _ = tmpl.ParseFiles("templates/directory-list.html")
+// }
+
+func internalErrorHandler(rw http.ResponseWriter, _ *http.Request) {
+
+}
+
+type ByteSize float64
+
+const (
+	_           = iota // ignore first value by assigning to blank identifier
+	KB ByteSize = 1 << (10 * iota)
+	MB
+	GB
+	TB
+	PB
+	EB
+	ZB
+	YB
+)
+
+func (b ByteSize) String() string {
+	switch {
+	case b >= YB:
+		return fmt.Sprintf("%.2f YB", b/YB)
+	case b >= ZB:
+		return fmt.Sprintf("%.2f ZB", b/ZB)
+	case b >= EB:
+		return fmt.Sprintf("%.2f EB", b/EB)
+	case b >= PB:
+		return fmt.Sprintf("%.2f PB", b/PB)
+	case b >= TB:
+		return fmt.Sprintf("%.2f TB", b/TB)
+	case b >= GB:
+		return fmt.Sprintf("%.2f GB", b/GB)
+	case b >= MB:
+		return fmt.Sprintf("%.2f MB", b/MB)
+	case b >= KB:
+		return fmt.Sprintf("%.2f KB", b/KB)
+	}
+	return fmt.Sprintf("%d  B", int64(b))
+}
 
 func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
