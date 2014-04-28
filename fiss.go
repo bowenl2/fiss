@@ -137,6 +137,9 @@ func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *htt
 		"fmtsize": func(s int64) string {
 			return ByteSize(s).String()
 		},
+		"abspath": func(f os.FileInfo) string {
+			return filepath.Join(path, f.Name())
+		},
 	}
 
 	tmpl := template.Must(
