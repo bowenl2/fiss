@@ -37,10 +37,10 @@ func (l FileSort) Less(i, j int) bool {
 }
 
 type DirectoryList struct {
-	Base        os.FileInfo
-	Files       []os.FileInfo
-	Directories []os.FileInfo
-	Others      []os.FileInfo
+	Machine  string
+	Path     string
+	BaseInfo os.FileInfo
+	Entries  []os.FileInfo
 }
 
 func recursiveDirectoryList(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
@@ -55,41 +55,46 @@ func handleDir(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	tmpl := template.New("DirectoryList")
 	tmp, _ = tmpl.ParseFiles("templates/directory-list.html")
 
-	io.WriteString(rw, "Hello directory<br/>")
-	dir, err := os.Open(fileInfo.Name())
+func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	dir, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	defer dir.Close()
 
-	files, err := dir.Readdir(0)
+	entries, err := dir.Readdir(0)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	fileEntries := make([]os.FileInfo, 0, len(files))
-	dirEntries := make([]os.FileInfo, 0, len(files))
-	otherEntries := make([]os.FileInfo, 0, len(files))
+	sort.Sort(FileSort(entries))
 
-	// TODO: Sort Files
-	for _, file := range files {
-		if file.Mode().IsRegular() {
-			fileEntries = append(fileEntries, file)
-		} else if file.Mode().IsDir() {
-			dirEntries = append(dirEntries, file)
-		} else {
-			otherEntries = append(otherEntries, file)
-		}
+	hostname, _ := os.Hostname()
+	// ViewModel
+	dl := DirectoryList{
+		Machine:  hostname,
+		Path:     path,
+		BaseInfo: fileInfo,
+		Entries:  entries,
 	}
 
-	dl := DirectoryList{Base: fileInfo, Files: fileEntries, Directories: dirEntries, Others: otherEntries}
+	tmplFuncs := map[string]interface{}{
+		"fmtsize": func(s int64) string {
+			return ByteSize(s).String()
+		},
+	}
+
+	tmpl := template.Must(
+		template.New("directory-list.html").Funcs(tmplFuncs).ParseFiles("templates/directory-list.html"))
+
 	err = tmpl.Execute(rw, dl)
 	if err != nil {
-		fmt.Errorf("%v", err)
+		fmt.Println("Error executing the template: %v\n", err)
 	}
-
 }
 
 func handleFile(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
