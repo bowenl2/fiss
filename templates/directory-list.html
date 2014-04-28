@@ -1,0 +1,56 @@
+<html>
+<head>
+	<title>
+	</title>
+</head>
+<body>
+<h1></h1>
+
+
+<div>
+	<h2>Directories</h2>
+	<table>
+<tr>
+	<th>Name</th>
+	<th>Modified</th>
+	</tr>
+	{{range .Directories}}
+		<tr>
+			<td>{{.Name}}</td>
+			<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
+		</tr>
+	{{end}}
+	<tr>
+	</tr>
+	</table>
+</div>
+
+<div>
+	<h2>Files</h2>
+	{{range .Files}}
+		<tr>
+			<td>{{.Name}}</td>
+			<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
+		</tr>
+	{{end}}
+</div>
+
+<div>
+	<h2>Others</h2>
+	<table>
+	<tr>
+	<th>Name</th>
+	<th>Modified</th>
+	<th></th>
+	</tr>
+	{{range .Others}}
+		<tr>
+			<td>{{.Name}}</td>
+			<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
+		</tr>
+	{{end}}
+	</table>
+</div>
+
+</body>
+</html>
