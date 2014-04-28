@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"html/template"
 	"io"
@@ -43,9 +44,22 @@ type DirectoryList struct {
 	Entries  []os.FileInfo
 }
 
-func recursiveDirectoryList(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
-	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
+func recursiveDirectoryList(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+	rw.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w := csv.NewWriter(rw)
+	w.Write([]string{"Path", "Modified", "Size", "Mode"})
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		w.Write([]string{
+			filepath.Join(root, path),
+			info.ModTime().Format("2006-01-02 15:04:05 -0700 MST"),
+			ByteSize(info.Size()).String(),
+			info.Mode().String(),
+		})
+		return nil // Never stop the function!
+	})
+	if err != nil {
+		io.WriteString(rw, fmt.Sprintf("\nERROR: %v", err))
+	}
 }
 
 func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
