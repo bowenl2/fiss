@@ -158,12 +158,10 @@ func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *htt
 	}
 }
 
-func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
-	rw.Header().Set("Content-Length", string(fileInfo.Size()))
-
-	handle, err := os.Open(path)
+func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
+	content, err := os.Open(path)
 	if err != nil {
-		rw.WriteHeader(500)
+
 		io.WriteString(rw, err.Error())
 	}
 	io.Copy(rw, handle)
