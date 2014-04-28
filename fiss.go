@@ -175,15 +175,15 @@ func main() {
 			return
 		}
 
-		fmt.Println(fileInfo)
+		fmt.Printf("req: %v %v\n", req.RemoteAddr, p)
 
 		if fileInfo.Mode().IsRegular() {
-			handleFile(fileInfo, rw, req)
+			handleFile(p, fileInfo, rw, req)
 			return
 		}
 
 		if fileInfo.IsDir() {
-			handleDir(fileInfo, rw, req)
+			handleDir(p, fileInfo, rw, req)
 			return
 		}
 
