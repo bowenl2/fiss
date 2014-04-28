@@ -48,25 +48,23 @@ func recursiveDirectoryList(path string, fileInfo os.FileInfo, rw http.ResponseW
 
 }
 
-// func fileModeString(os.FileMode) {
-// 	modeMap := map[int]string{
-// 		os.ModeDir:        "d", // is a directory
-// 		os.ModeAppend:     "a", // append-only
-// 		os.ModeExclusive:  "l", // exclusive use
-// 		os.ModeTemporary:  "T", // temporary file (not backed up)
-// 		os.ModeSymlink:    "L", // symbolic link
-// 		os.ModeDevice:     "D", // device file
-// 		os.ModeNamedPipe:  "p", // named pipe (FIFO)
-// 		os.ModeSocket:     "S", // Unix domain socket
-// 		os.ModeSetuid:     "u", // setuid
-// 		os.ModeSetgid:     "g", // setgid
-// 		os.ModeCharDevice: "c", // Unix character device, when ModeDevice is set
-// 		os.ModeSticky:     "t", // sticky
-// 	}
+func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+	rw.WriteHeader(500)
 
-// }
+	tmplAsset, err := Asset("error.html")
+	if err != nil {
+		io.WriteString(rw, "Internal server error.  Additionally, an error was encountered while loading the error page")
+		return
+	}
+	tmplString := string(tmplAsset)
 
-func internalErrorHandler(error err, rw http.ResponseWriter, _ *http.Request) {
+	tmpl := template.Must(
+		template.New("error.html").Parse(tmplString))
+	tmpl.Execute(rw, map[string]interface{}{
+		"err": err,
+		"req": r,
+	})
 
 }
 
