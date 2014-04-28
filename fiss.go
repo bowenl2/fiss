@@ -10,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 )
 
 var (
@@ -52,7 +53,7 @@ func handleListDirRecursive(root string, fileInfo os.FileInfo, rw http.ResponseW
 		w.Write([]string{
 			filepath.Join(root, path),
 			info.ModTime().Format("2006-01-02 15:04:05 -0700 MST"),
-			string(info.Size()),
+			strconv.Itoa(info.Size()),
 			info.Mode().String(),
 		})
 		return nil // Never stop the function!
