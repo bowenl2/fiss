@@ -109,11 +109,7 @@ func (b ByteSize) String() string {
 func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	err := r.ParseForm()
-	if err != nil {
-		internalErrorHandler(err, rw, r)
-		return
-	}
+	sortStr := r.FormValue("s")
 
 	dir, err := os.Open(path)
 	if err != nil {
