@@ -148,9 +148,10 @@ func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *htt
 	}
 }
 
-func handleFile(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Length", string(fileInfo.Size()))
-	handle, err := os.Open(fileInfo.Name())
+
+	handle, err := os.Open(path)
 	if err != nil {
 		rw.WriteHeader(500)
 		io.WriteString(rw, err.Error())
@@ -161,7 +162,12 @@ func handleFile(fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 func main() {
 	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
 		p := filepath.Join(rootPath, path.Clean(req.URL.Path))
-		filepath.Abs(p)
+		p, err := filepath.Abs(p)
+		if err != nil {
+			fmt.Errorf("%v", err)
+			return
+		}
+
 		fileInfo, err := os.Stat(p)
 		if err != nil {
 			rw.WriteHeader(http.StatusNotFound)
