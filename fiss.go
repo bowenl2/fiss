@@ -44,7 +44,7 @@ type DirectoryList struct {
 	Entries  []os.FileInfo
 }
 
-func recursiveDirectoryList(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+func handleListDirRecursive(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w := csv.NewWriter(rw)
 	w.Write([]string{"Path", "Modified", "Size", "Mode"})
@@ -52,7 +52,7 @@ func recursiveDirectoryList(root string, fileInfo os.FileInfo, rw http.ResponseW
 		w.Write([]string{
 			filepath.Join(root, path),
 			info.ModTime().Format("2006-01-02 15:04:05 -0700 MST"),
-			ByteSize(info.Size()).String(),
+			string(info.Size()),
 			info.Mode().String(),
 		})
 		return nil // Never stop the function!
@@ -118,7 +118,7 @@ func (b ByteSize) String() string {
 	return fmt.Sprintf("%d  B", int64(b))
 }
 
-func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
+func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	dir, err := os.Open(path)
@@ -198,13 +198,17 @@ func main() {
 
 		fmt.Printf("req: %v %v\n", req.RemoteAddr, p)
 
-		if fileInfo.Mode().IsRegular() {
-			handleFile(p, fileInfo, rw, req)
+		if fileInfo.IsDir() {
+			if req.FormValue("r") == "" {
+				handleListDir(p, fileInfo, rw, req)
+			} else {
+				handleListDirRecursive(p, fileInfo, rw, req)
+			}
 			return
 		}
 
-		if fileInfo.IsDir() {
-			handleDir(p, fileInfo, rw, req)
+		if fileInfo.Mode().IsRegular() {
+			handleFile(p, fileInfo, rw, req)
 			return
 		}
 
