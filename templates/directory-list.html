@@ -1,56 +1,74 @@
+<!DOCTYPE html>
 <html>
 <head>
-	<title>
-	</title>
+	<title>{{.Machine}} &gt; {{.Path}}</title>
+	<link href='//fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<style>
+		body
+		{
+			background-color: #101010;
+			color: #efefef;
+			font-family: 'Ubuntu Mono', '';
+			padding-left: 10px;
+		}
+		table tr > :not(:first-child) { white-space: nowrap; width: 1px;}
+		table
+		{
+			margin-top: 15px;
+			width: 90%;
+		}
+		th
+		{
+			text-align:left;
+			padding: 5px 15px 5px 15px;
+		}
+
+		td, th
+		{
+			padding-left: 5px;
+			padding-right: 5px;
+			text-align: left;
+		}
+		.numeric
+		{
+			text-align: right;
+			white-space: pre;
+		}
+
+		tr:nth-child(odd)
+		{
+			background-color: #303030;
+		}
+	</style>
 </head>
 <body>
-<h1></h1>
-
-
-<div>
-	<h2>Directories</h2>
-	<table>
-<tr>
-	<th>Name</th>
-	<th>Modified</th>
-	</tr>
-	{{range .Directories}}
-		<tr>
-			<td>{{.Name}}</td>
-			<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
-		</tr>
-	{{end}}
-	<tr>
-	</tr>
-	</table>
-</div>
-
-<div>
-	<h2>Files</h2>
-	{{range .Files}}
-		<tr>
-			<td>{{.Name}}</td>
-			<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
-		</tr>
-	{{end}}
-</div>
-
-<div>
-	<h2>Others</h2>
-	<table>
-	<tr>
-	<th>Name</th>
-	<th>Modified</th>
-	<th></th>
-	</tr>
-	{{range .Others}}
-		<tr>
-			<td>{{.Name}}</td>
-			<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
-		</tr>
-	{{end}}
-	</table>
-</div>
-
+	<h1>{{.Path}}</h1>
+	<div>
+		{{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
+		{{.BaseInfo.Mode}}
+	</div>
+	<div>
+		<table>
+			<tr>
+				<th>Name</th>
+				<th>Modified</th>
+				<th class="numeric">Size</th>
+				<th>Mode</th>
+			</tr>
+			{{range .Entries}}
+			<tr title="{{printf "%#v" .Sys}}">
+				<td>{{.Name}}</td>
+				<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
+				{{if .IsDir}}
+				<td class="numeric"></td>
+				{{else}}
+				<td class="numeric">{{.Size | fmtsize}}</td>
+				{{end}}
+				<td>{{.Mode}}</td>
+			</tr>
+			{{end}}
+		</table>
+	</div>
 </body>
 </html>
