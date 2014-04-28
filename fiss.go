@@ -185,19 +185,19 @@ func main() {
 		p := filepath.Join(rootPath, path.Clean(req.URL.Path))
 		p, err := filepath.Abs(p)
 		if err != nil {
-			fmt.Errorf("%v", err)
+			internalErrorHandler(err, rw, req)
 			return
 		}
 
 		fileInfo, err := os.Stat(p)
 		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
-			io.WriteString(rw, err.Error())
+			internalErrorHandler(err, rw, req)
 			return
 		}
 
 		fmt.Printf("req: %v %v\n", req.RemoteAddr, p)
 
+		// Intercept directories to perform listing
 		if fileInfo.IsDir() {
 			if req.FormValue("r") == "" {
 				handleListDir(p, fileInfo, rw, req)
