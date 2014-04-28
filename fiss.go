@@ -142,11 +142,12 @@ func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *htt
 		},
 	}
 
-	tmplString, err := string(Asset("directory-list.html"))
+	tmplAsset, err := Asset("directory-list.html")
 	if err != nil {
 		internalErrorHandler(err, rw, r)
 		return
 	}
+	tmplString := string(tmplAsset)
 
 	tmpl := template.Must(
 		template.New("directory-list.html").Funcs(tmplFuncs).Parse(tmplString))
