@@ -66,7 +66,7 @@ func recursiveDirectoryList(path string, fileInfo os.FileInfo, rw http.ResponseW
 
 // }
 
-func internalErrorHandler(rw http.ResponseWriter, _ *http.Request) {
+func internalErrorHandler(error err, rw http.ResponseWriter, _ *http.Request) {
 
 }
 
@@ -106,7 +106,7 @@ func (b ByteSize) String() string {
 	return fmt.Sprintf("%d  B", int64(b))
 }
 
-func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	dir, err := os.Open(path)
@@ -142,8 +142,14 @@ func handleDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *htt
 		},
 	}
 
+	tmplString, err := string(Asset("directory-list.html"))
+	if err != nil {
+		internalErrorHandler(err, rw, r)
+		return
+	}
+
 	tmpl := template.Must(
-		template.New("directory-list.html").Funcs(tmplFuncs).ParseFiles("templates/directory-list.html"))
+		template.New("directory-list.html").Funcs(tmplFuncs).Parse(tmplString))
 
 	err = tmpl.Execute(rw, dl)
 	if err != nil {
