@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 )
 
 var (
@@ -15,17 +16,23 @@ var (
 )
 
 // Directory List
-type ByFilename []os.FileInfo
+type FileSort []os.FileInfo
 
-func (l ByFilename) Len() int {
+func (l FileSort) Len() int {
 	return len(l)
 }
 
-func (l ByFilename) Swap(i, j int) {
+func (l FileSort) Swap(i, j int) {
 	l[i], l[j] = l[j], l[i]
 }
 
-func (l ByFilename) Less(i, j int) bool {
+func (l FileSort) Less(i, j int) bool {
+	if l[i].IsDir() && !l[j].IsDir() {
+		return true
+	}
+	if !l[i].IsDir() && l[j].IsDir() {
+		return false
+	}
 	return l[i].Name() < l[j].Name()
 }
 
