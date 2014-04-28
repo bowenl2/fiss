@@ -67,8 +67,8 @@ func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 	rw.WriteHeader(500)
 
-	tmplAsset, err := Asset("error.html")
-	if err != nil {
+	tmplAsset, tmplErr := Asset("error.html")
+	if tmplErr != nil {
 		io.WriteString(rw, "Internal server error.  Additionally, an error was encountered while loading the error page")
 		return
 	}
@@ -80,7 +80,6 @@ func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
 		"err": err,
 		"req": r,
 	})
-
 }
 
 type ByteSize float64
