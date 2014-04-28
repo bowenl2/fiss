@@ -207,10 +207,7 @@ func main() {
 			return
 		}
 
-		if fileInfo.Mode().IsRegular() {
-			handleFile(p, fileInfo, rw, req)
-			return
-		}
+		handleFile(p, fileInfo, rw, req)
 
 	})
 	http.ListenAndServe(":8888", nil)
