@@ -178,7 +178,8 @@ func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *ht
 
 		io.WriteString(rw, err.Error())
 	}
-	io.Copy(rw, handle)
+
+	http.ServeContent(rw, r, path, fileInfo.ModTime(), content)
 }
 
 func main() {
