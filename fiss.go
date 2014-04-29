@@ -17,34 +17,6 @@ var (
 	rootPath = "/"
 )
 
-// Directory List
-type FileSort []os.FileInfo
-
-func (l FileSort) Len() int {
-	return len(l)
-}
-
-func (l FileSort) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
-
-func (l FileSort) Less(i, j int) bool {
-	if l[i].IsDir() && !l[j].IsDir() {
-		return true
-	}
-	if !l[i].IsDir() && l[j].IsDir() {
-		return false
-	}
-	return l[i].Name() < l[j].Name()
-}
-
-type DirectoryList struct {
-	Machine  string
-	Path     string
-	BaseInfo os.FileInfo
-	Entries  []os.FileInfo
-}
-
 func handleListDirRecursive(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w := csv.NewWriter(rw)
@@ -80,42 +52,6 @@ func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
 		"err": err,
 		"req": r,
 	})
-}
-
-type ByteSize float64
-
-const (
-	_           = iota // ignore first value by assigning to blank identifier
-	KB ByteSize = 1 << (10 * iota)
-	MB
-	GB
-	TB
-	PB
-	EB
-	ZB
-	YB
-)
-
-func (b ByteSize) String() string {
-	switch {
-	case b >= YB:
-		return fmt.Sprintf("%.2f YB", b/YB)
-	case b >= ZB:
-		return fmt.Sprintf("%.2f ZB", b/ZB)
-	case b >= EB:
-		return fmt.Sprintf("%.2f EB", b/EB)
-	case b >= PB:
-		return fmt.Sprintf("%.2f PB", b/PB)
-	case b >= TB:
-		return fmt.Sprintf("%.2f TB", b/TB)
-	case b >= GB:
-		return fmt.Sprintf("%.2f GB", b/GB)
-	case b >= MB:
-		return fmt.Sprintf("%.2f MB", b/MB)
-	case b >= KB:
-		return fmt.Sprintf("%.2f KB", b/KB)
-	}
-	return fmt.Sprintf("%d  B", int64(b))
 }
 
 func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
