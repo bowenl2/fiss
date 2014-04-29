@@ -102,7 +102,7 @@ func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r 
 
 	err = tmpl.Execute(rw, dl)
 	if err != nil {
-		fmt.Println("Error executing the template: %v\n", err)
+		fmt.Printf("Error executing the template: %v\n", err)
 	}
 }
 
