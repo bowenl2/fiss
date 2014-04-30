@@ -1,99 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>{{.Machine}} &gt; {{.Path}}</title>
-	<link href='//fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-	<script>
-	$(function(){
-		$("tr[data-path]").click(function() {
-			window.location.href = $(this).data("path");
-		});
-	});
-	</script>
-	<style>
-		body
-		{
-			background-color: #101010;
-			color: #efefef;
-			font-family: 'Ubuntu Mono', '';
-			padding-left: 10px;
-		}
-		table tr > :not(:first-child) { white-space: nowrap; width: 1px;}
-		table
-		{
-			margin-top: 15px;
-			width: 90%;
-		}
-		th
-		{
-			text-align:left;
-			padding: 5px 15px 5px 15px;
-		}
+{{define "TTitle"}}
+  {{.Machine}} &gt; {{.Path}}
+{{end}}
 
-		td, th
-		{
-			padding-left: 5px;
-			padding-right: 5px;
-			text-align: left;
-		}
-		td
-		{
-			cursor: pointer;
-		}
-		.numeric
-		{
-			text-align: right;
-			white-space: pre;
-		}
-
-		tr:nth-child(odd)
-		{
-			background-color: #303030;
-		}
-
-		tbody tr:hover
-		{
-			background-color: #000000;
-		}
-
-		th
-		{
-			background-color: #606060;
-		}
-	</style>
-</head>
-<body>
-	<h1>{{.Path}}</h1>
-	<div>
-		{{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
-		{{.BaseInfo.Mode}}
-	</div>
-	<div>
-		<table>
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Modified</th>
-					<th class="numeric">Size</th>
-					<th>Mode</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{range .Entries}}
-				<tr title="{{printf "%#v" .Sys}}" data-path="{{abspath .}}">
-					<td>{{.Name}}</td>
-					<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
+{{define "TContent"}}
+<h1>{{.Path}}</h1>
+<div>
+{{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
+{{.BaseInfo.Mode}}
+</div>
+<div>
+  <table>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Modified</th>
+	<th class="numeric">Size</th>
+	<th>Mode</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Entries}}
+      <tr title="{{printf "%#v" .Sys}}" data-path="{{relpath .}}">
+	<td>{{.Name}}</td>
+	<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
 					{{if .IsDir}}
-					<td class="numeric"></td>
+	<td class="numeric"></td>
 					{{else}}
-					<td class="numeric">{{.Size | fmtsize}}</td>
+	<td class="numeric">{{.Size | fmtsize}}</td>
 					{{end}}
-					<td>{{.Mode}}</td>
-				</tr>
-				{{end}}
-			</tbody>
-		</table>
-	</div>
-</body>
-</html>
+	<td>{{.Mode}}</td>
+      </tr>
+	{{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}
