@@ -1,0 +1,13 @@
+{{define "TTitle"}}
+  Error
+{{end}}
+
+{{define "TContent"}}
+<h1>Error</h1>
+<h4>Message:</h4>
+<pre>{{.err.Error}}</pre>
+<h4>Raw Error:</h4>
+<pre>{{prettyfmt .err | printf "%# v"}}</pre>
+<h4>Request:</h4>
+<pre>{{prettyfmt .req | printf "%# v"}}</pre>
+{{end}}

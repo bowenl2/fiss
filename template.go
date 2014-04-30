@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/kr/pretty"
 	"html/template"
 	"os"
 	"io"
@@ -28,6 +29,7 @@ func render(viewName string, viewModel interface{}, w io.Writer) (error) {
 			// Path relative to the base of root of the server
 			return filepath.Join(viewModel.(DirectoryList).Path, f.Name())
 		},
+		"prettyfmt": pretty.Formatter,
 	}
 
 	tmpl := template.New("template").Funcs(tmplFuncs)

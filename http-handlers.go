@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"html/template"
 	"sort"
 	"strconv"
 	"io"
@@ -34,19 +33,13 @@ func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 	rw.WriteHeader(500)
 
-	tmplAsset, tmplErr := Asset("error.html")
-	if tmplErr != nil {
-		io.WriteString(rw, "Internal server error.  Additionally, an error was encountered while loading the error page")
-		return
-	}
-	tmplString := string(tmplAsset)
-
-	tmpl := template.Must(
-		template.New("error.html").Parse(tmplString))
-	tmpl.Execute(rw, map[string]interface{}{
+	err = render("error.go.html", map[string]interface{}{
 		"err": err,
 		"req": r,
-	})
+	}, rw)
+	if err != nil {
+		io.WriteString(rw, "Internal server error.  Additionally, an error was encountered while loading the error page: " + err.Error())
+	}
 }
 
 func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
@@ -61,7 +54,7 @@ func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r 
 
 	entries, err := dir.Readdir(0)
 	if err != nil {
-		fmt.Println(err.Error())
+		internalErrorHandler(err, rw, r)
 		return
 	}
 
@@ -78,15 +71,15 @@ func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r 
 
 	err = render("directory-list.go.html", dl, rw)
 	if err != nil {
-		fmt.Printf("template error: %v\n", err)
+		fmt.Printf("template rendering error: %v\n", err)
 	}
 }
 
 func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
 	content, err := os.Open(path)
 	if err != nil {
-
-		io.WriteString(rw, err.Error())
+		internalErrorHandler(err, rw, r)
+		return
 	}
 
 	http.ServeContent(rw, r, path, fileInfo.ModTime(), content)
