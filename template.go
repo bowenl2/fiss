@@ -8,7 +8,7 @@ import (
 )
 
 func render(viewName string, viewModel interface{}, w io.Writer) (error) {
-	layoutAsset, err := Asset("layout.html")
+	layoutAsset, err := Asset("layout.go.html")
 	if err != nil {
 		return err
 	}

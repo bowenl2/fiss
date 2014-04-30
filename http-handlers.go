@@ -76,7 +76,7 @@ func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r 
 		Entries:  entries,
 	}
 
-	err = render("directory-list.html", dl, rw)
+	err = render("directory-list.go.html", dl, rw)
 	if err != nil {
 		fmt.Printf("template error: %v\n", err)
 	}
