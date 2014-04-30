@@ -2,23 +2,20 @@ package main
 
 import (
 	"fmt"
-	
-	
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
-	
 )
-
-var (
-	rootPath = "/"
-)
-
 
 func main() {
+	options, err := parseOptions()
+	if err != nil {
+		return
+	}
+
 	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
-		p := filepath.Join(rootPath, path.Clean(req.URL.Path))
+		p := filepath.Join(options.Root, path.Clean(req.URL.Path))
 		p, err := filepath.Abs(p)
 		if err != nil {
 			internalErrorHandler(err, rw, req)
