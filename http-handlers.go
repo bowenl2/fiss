@@ -76,28 +76,9 @@ func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r 
 		Entries:  entries,
 	}
 
-	tmplFuncs := map[string]interface{}{
-		"fmtsize": func(s int64) string {
-			return ByteSize(s).String()
-		},
-		"abspath": func(f os.FileInfo) string {
-			return filepath.Join(path, f.Name())
-		},
-	}
-
-	tmplAsset, err := Asset("directory-list.html")
+	err = render("directory-list.html", dl, rw)
 	if err != nil {
-		internalErrorHandler(err, rw, r)
-		return
-	}
-	tmplString := string(tmplAsset)
-
-	tmpl := template.Must(
-		template.New("directory-list.html").Funcs(tmplFuncs).Parse(tmplString))
-
-	err = tmpl.Execute(rw, dl)
-	if err != nil {
-		fmt.Printf("Error executing the template: %v\n", err)
+		fmt.Printf("template error: %v\n", err)
 	}
 }
 
