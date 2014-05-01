@@ -51,5 +51,7 @@ func main() {
 		handleFile(p, fileInfo, rw, req)
 
 	})
-	http.ListenAndServe(":8888", nil)
+
+	bindString := fmt.Sprintf("%s:%d", options.Address, options.Port)
+	http.ListenAndServe(bindString, nil)
 }
