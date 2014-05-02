@@ -65,8 +65,12 @@ func handleListDir(
 
 	sort.Sort(FileSort(entries))
 
-	hostname, _ := os.Hostname()
+	// The view should see the path as relative to the root
+	// (it should not care where the root is)
 	relPath, _ := filepath.Rel(serverRoot, path)
+	relPath = filepath.Clean(filepath.Join(string(filepath.Separator), relPath))
+	hostname, _ := os.Hostname()
+
 	// ViewModel
 	dl := DirectoryList{
 		Machine:  hostname,
