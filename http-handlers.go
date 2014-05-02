@@ -42,7 +42,12 @@ func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
+func handleListDir(
+	serverRoot string,
+	path string,
+	fileInfo os.FileInfo,
+	rw http.ResponseWriter,
+	r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	dir, err := os.Open(path)
@@ -61,10 +66,11 @@ func handleListDir(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r 
 	sort.Sort(FileSort(entries))
 
 	hostname, _ := os.Hostname()
+	relPath, _ := filepath.Rel(serverRoot, path)
 	// ViewModel
 	dl := DirectoryList{
 		Machine:  hostname,
-		Path:     path,
+		Path:     relPath,
 		BaseInfo: fileInfo,
 		Entries:  entries,
 	}

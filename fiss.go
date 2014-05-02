@@ -23,7 +23,7 @@ func main() {
 		absRoot)
 
 	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
-		p := filepath.Join(options.Root, path.Clean(req.URL.Path))
+		p := filepath.Join(absRoot, path.Clean(req.URL.Path))
 		p, err := filepath.Abs(p)
 		if err != nil {
 			internalErrorHandler(err, rw, req)
@@ -41,7 +41,7 @@ func main() {
 		// Intercept directories to perform listing
 		if fileInfo.IsDir() {
 			if req.FormValue("r") == "" {
-				handleListDir(p, fileInfo, rw, req)
+				handleListDir(absRoot, p, fileInfo, rw, req)
 			} else {
 				handleListDirRecursive(p, fileInfo, rw, req)
 			}
