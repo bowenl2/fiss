@@ -1,14 +1,14 @@
 package main
 
 import (
+	"encoding/csv"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
-	"io"
-	"path/filepath"
-	"fmt"
-	"encoding/csv"
-	"net/http"
 )
 
 func handleListDirRecursive(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
