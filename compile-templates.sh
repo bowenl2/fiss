@@ -1,5 +1,5 @@
 #!/bin/bash
 PWD="$(dirname $0)"
 pushd $PWD
-go-bindata -debug -prefix="templates/" templates/
+go-bindata -prefix="templates/" templates/
 popd
