@@ -45,10 +45,13 @@ func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
 func handleListRoots(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 
+	hostname, _ := os.Hostname()
 	rootInfos, errors := listRootInfos()
+
 	viewModel := RootListViewModel{
-		Infos:  rootInfos,
-		Errors: errors,
+		Machine: hostname,
+		Infos:   rootInfos,
+		Errors:  errors,
 	}
 
 	err := render("root-list.go.html", viewModel, rw)
