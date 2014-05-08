@@ -49,9 +49,9 @@ func handleListRoots(rw http.ResponseWriter, r *http.Request) {
 	rootInfos, errors := listRootInfos()
 
 	viewModel := RootListViewModel{
-		Machine: hostname,
-		Infos:   rootInfos,
-		Errors:  errors,
+		Machine:   hostname,
+		RootInfos: rootInfos,
+		Errors:    errors,
 	}
 
 	err := render("root-list.go.html", viewModel, rw)
