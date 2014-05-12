@@ -4,9 +4,12 @@
 
 {{define "TContent"}}
 <h1>{{.Path}}</h1>
+<div style="float:right">
+</div>
 <div>
-{{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
-{{.BaseInfo.Mode}}
+  {{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
+  {{.BaseInfo.Mode}} -
+  <a href="?r=1">Recursive List</a>
 </div>
 <div>
   <table>
