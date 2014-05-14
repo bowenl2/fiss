@@ -13,6 +13,7 @@ type Options struct {
 	// SSH Stuff
 	UseSSHTunnel bool `short:"s" long:"ssh-tunnel" description:"Use an SSH tunnel instead of listening on a local port"`
 	PrivateKeyPath string `short:"k" long:"ssh-key" description:"Path to private key as produced by ssh-keygen" default:"~/.ssh/id_rsa"`
+	SSHServerEndpoint string `short:"e" long:"ssh-endpoint" description:"Request remote SSH server to listen on remote_interface (default all interfaces) at remote_port: [remote_interface:]remote_host:remote_port"`
 }
 
 func parseOptions() (*Options, error) {
