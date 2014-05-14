@@ -9,6 +9,10 @@ type Options struct {
 	Port uint16 `short:"p" long:"port" description:"Local port on which to listen" default:"8080"`
 	Root string `short:"r" long:"root" description:"Root directory of server" default:"."`
 	Verbose bool `short:"v" long:"verbose" description:"Print absurd amounts of debugging information"`
+
+	// SSH Stuff
+	UseSSHTunnel bool `short:"s" long:"ssh-tunnel" description:"Use an SSH tunnel instead of listening on a local port"`
+	PrivateKeyPath string `short:"k" long:"ssh-key" description:"Path to private key as produced by ssh-keygen" default:"~/.ssh/id_rsa"`
 }
 
 func parseOptions() (*Options, error) {
