@@ -119,5 +119,23 @@ func makeSSHTunnel(endpoint string, username string, keyPath string) (net.Listen
 		Auth: []ssh.ClientAuth{ssh.ClientAuthKeyring(keyring)},
 	}
 
-	return nil, nil
+	conn, err := ssh.Dial("tcp",
+		fmt.Sprintf("%s:%d", remoteAddr.String(), 22),
+		sshConfig)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	// remoteListenEndpoint := fmt.Sprintf("%s:%d",
+	// 	remoteListenInterface.String(), remotePort)
+	listener, err := conn.ListenTCP(&net.TCPAddr{
+		IP: remoteListenInterface.IP,
+		Port: remotePort,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return listener, nil
 }
