@@ -9,10 +9,9 @@ import (
 	"path/filepath"
 )
 
-
 func makeTCPListener(string localInterface, port int) (*net.Listener, error) {
 	addr := net.TCPAddr{
-		IP: net.ParseIP(localInterface),
+		IP:   net.ParseIP(localInterface),
 		Port: port,
 	}
 	listener, err := net.ListenTCP(addr.Network(), addr)
@@ -67,6 +66,18 @@ func main() {
 
 	})
 
-	bindString := fmt.Sprintf("%s:%d", options.Address, options.Port)
-	http.ListenAndServe(bindString, nil)
+	// Determine where to listen for connections
+	var listener *net.Listener
+	switch options.UseSSHTunnel {
+	case false:
+		listener, err = makeTCPListener(options.Address, options.Port)
+	case true:
+		listener, err = makeSSHTunnel(options.SSHServerEndpoint, options.Username, options.PrivateKeyPath)
+	}
+	if err != nil {
+		fmt.Printf(err)
+		return
+	}
+
+	http.Serve(listener, nil)
 }
