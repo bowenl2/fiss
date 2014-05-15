@@ -2,11 +2,26 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 )
+
+
+func makeTCPListener(string localInterface, port int) (*net.Listener, error) {
+	addr := net.TCPAddr{
+		IP: net.ParseIP(localInterface),
+		Port: port,
+	}
+	listener, err := net.ListenTCP(addr.Network(), addr)
+	if err != nil {
+		return nil, err
+	}
+
+	return listener.(*net.Listener), err
+}
 
 func main() {
 	options, err := parseOptions()
