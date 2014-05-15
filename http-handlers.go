@@ -1,14 +1,14 @@
 package main
 
 import (
+	"encoding/csv"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
-	"io"
-	"path/filepath"
-	"fmt"
-	"encoding/csv"
-	"net/http"
 )
 
 func handleListDirRecursive(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
@@ -38,7 +38,25 @@ func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
 		"req": r,
 	}, rw)
 	if err != nil {
-		io.WriteString(rw, "Internal server error.  Additionally, an error was encountered while loading the error page: " + err.Error())
+		io.WriteString(rw, "Internal server error.  Additionally, an error was encountered while loading the error page: "+err.Error())
+	}
+}
+
+func handleListRoots(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	hostname, _ := os.Hostname()
+	rootInfos, errors := listRootInfos()
+
+	viewModel := RootListViewModel{
+		Machine:   hostname,
+		RootInfos: rootInfos,
+		Errors:    errors,
+	}
+
+	err := render("root-list.go.html", viewModel, rw)
+	if err != nil {
+		fmt.Printf("template rendering error: %v\n", err)
 	}
 }
 

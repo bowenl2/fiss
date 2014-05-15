@@ -1,0 +1,25 @@
+{{define "TTitle"}}
+  {{.Machine}} &gt; Root List
+{{end}}
+
+{{define "TContent"}}
+<h1>Filesystem Roots</h1>
+<div>
+  <table>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Modified</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .RootInfos}}
+      <tr title="{{printf "%#v" .Sys}}" data-path="{{.Name}}">
+	<td>{{.Name}}</td>
+	<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}
