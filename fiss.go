@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 )
 
-func makeTCPListener(string localInterface, port int) (*net.Listener, error) {
-	addr := net.TCPAddr{
+func makeTCPListener(localInterface string, port int) (net.Listener, error) {
+	addr := &net.TCPAddr{
 		IP:   net.ParseIP(localInterface),
 		Port: port,
 	}
@@ -19,7 +19,7 @@ func makeTCPListener(string localInterface, port int) (*net.Listener, error) {
 		return nil, err
 	}
 
-	return listener.(*net.Listener), err
+	return listener, err
 }
 
 func main() {
@@ -67,7 +67,7 @@ func main() {
 	})
 
 	// Determine where to listen for connections
-	var listener *net.Listener
+	var listener net.Listener
 	switch options.UseSSHTunnel {
 	case false:
 		listener, err = makeTCPListener(options.Address, options.Port)
@@ -75,7 +75,7 @@ func main() {
 		listener, err = makeSSHTunnel(options.SSHServerEndpoint, options.Username, options.PrivateKeyPath)
 	}
 	if err != nil {
-		fmt.Printf(err)
+		fmt.Printf("fatal: %v", err)
 		return
 	}
 
