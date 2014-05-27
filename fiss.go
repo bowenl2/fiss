@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	//"github.com/moovweb/golog"
 	"net/http"
 	"os"
 	"path"
@@ -23,18 +24,13 @@ func makeTCPListener(localInterface string, port int) (net.Listener, error) {
 }
 
 func main() {
+//	log := golog.NewLogger("fiss: ")
+//	log.AddProcessor("console", golog.NewConsoleProcessor(golog.LOG_DEBUG, true))
 	options, err := parseOptions()
 	if err != nil {
 		return
 	}
 	absRoot, _ := filepath.Abs(options.Root)
-
-	fmt.Printf(
-		"%s: %s:%d %s\n",
-		os.Args[0],
-		options.Address,
-		options.Port,
-		absRoot)
 
 	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
 		p := filepath.Join(absRoot, path.Clean(req.URL.Path))
@@ -71,11 +67,32 @@ func main() {
 	switch options.UseSSHTunnel {
 	case false:
 		listener, err = makeTCPListener(options.Address, options.Port)
+		fmt.Printf(
+			"%s: %s:%d %s\n",
+			os.Args[0],
+			options.Address,
+			options.Port,
+			absRoot)
+
 	case true:
-		listener, err = makeSSHTunnel(options.SSHServerEndpoint, options.Username, options.PrivateKeyPath)
+		listener, err = makeSSHTunnel(
+			options.Username,
+			options.SSHServer,
+			options.SSHOutboundPort,
+			options.SSHListenInterface,
+			options.SSHInboundPort,
+			options.PrivateKeyPath)
+		fmt.Printf("ssh: %s@%s:%d (listen on %s:%d) using key: %s\n",
+			options.Username,
+			options.SSHServer,
+			options.SSHOutboundPort,
+			options.SSHListenInterface,
+			options.SSHInboundPort,
+			options.PrivateKeyPath)
 	}
+
 	if err != nil {
-		fmt.Printf("fatal: %v", err)
+		fmt.Printf("fatal: %v\n", err)
 		return
 	}
 
