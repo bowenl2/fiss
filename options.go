@@ -16,7 +16,7 @@ type Options struct {
 	PrivateKeyPath  string `short:"k" long:"ssh-key" description:"Path to private key as produced by ssh-keygen" default:"~/.ssh/id_rsa"`
 	SSHServer       string `short:"s" long:"ssh-server" description:"Remote SSH server to request reverse port forwarding"`
 	SSHOutboundPort int    `long:"ssh-outbound-port" description:"Port on which to connect to SSH server" default:"22"`
-	SSHInboundPort  int    `short:"l" long:"ssh-inbound-port" description:"Port on which the SSH server should listen for incoming requests" default:"22"`
+	SSHInboundPort  int    `short:"l" long:"ssh-inbound-port" description:"Port on which the SSH server should listen for incoming requests"`
 	SSHListenInterface string `short:"i" long:"ssh-listen-interface" description:"Interface on which the SSH server should listen" default:"0.0.0.0"`
 }
 
