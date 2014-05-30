@@ -29,7 +29,6 @@ func makeSSHTunnel(
 		},
 	}
 
-	// Connnect
 	conn, err := ssh.Dial("tcp",
 		fmt.Sprintf("%s:%d", sshServer, sshOutboundPort),
 		sshConfig)
@@ -37,7 +36,6 @@ func makeSSHTunnel(
 		fmt.Printf("%#v", err)
 		return nil, err
 	}
-	//defer conn.Close()
 
 	remoteListenEndpoint := fmt.Sprintf("%s:%d",
 		sshListenInterface, sshInboundPort)
