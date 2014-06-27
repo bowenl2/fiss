@@ -4,8 +4,6 @@
 
 {{define "TContent"}}
 <h1>{{.Path}}</h1>
-<div style="float:right">
-</div>
 <div>
   {{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
   {{.BaseInfo.Mode}} -
@@ -23,7 +21,7 @@
     </thead>
     <tbody>
       {{range .Entries}}
-      <tr title="{{printf "%#v" .Sys}}" data-path="{{relpath .}}">
+      <tr title="{{printf "%#v" .Sys}}" data-path="{{relpath .}}" class="{{if .IsDir}}directory{{end}}">
 	<td>{{.Name}}</td>
 	<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
 					{{if .IsDir}}
