@@ -23,17 +23,9 @@ func makeTCPListener(localInterface string, port int) (net.Listener, error) {
 	return listener, err
 }
 
-func main() {
-//	log := golog.NewLogger("fiss: ")
-//	log.AddProcessor("console", golog.NewConsoleProcessor(golog.LOG_DEBUG, true))
-	options, err := parseOptions()
-	if err != nil {
-		return
-	}
-	absRoot, _ := filepath.Abs(options.Root)
-
-	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
-		p := filepath.Join(absRoot, path.Clean(req.URL.Path))
+func makeHandler(root string) http.HandlerFunc {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		p := filepath.Join(root, path.Clean(req.URL.Path))
 		p, err := filepath.Abs(p)
 		if err != nil {
 			internalErrorHandler(err, rw, req)
@@ -59,8 +51,19 @@ func main() {
 		}
 
 		handleFile(p, fileInfo, rw, req)
-
 	})
+}
+
+func main() {
+	//	log := golog.NewLogger("fiss: ")
+	//	log.AddProcessor("console", golog.NewConsoleProcessor(golog.LOG_DEBUG, true))
+	options, err := parseOptions()
+	if err != nil {
+		return
+	}
+	root, _ := filepath.Abs(options.Root)
+
+	http.HandleFunc("/", makeHandler(root))
 
 	// Determine where to listen for connections
 	var listener net.Listener
@@ -72,7 +75,7 @@ func main() {
 			os.Args[0],
 			options.Address,
 			options.Port,
-			absRoot)
+			root)
 
 	case true:
 		listener, err = makeSSHTunnel(
