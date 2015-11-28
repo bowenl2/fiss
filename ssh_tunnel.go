@@ -1,10 +1,11 @@
 package main
 
 import (
-	"code.google.com/p/go.crypto/ssh"
 	"fmt"
+	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
+	"strconv"
 )
 
 func makeSSHTunnel(
@@ -30,15 +31,16 @@ func makeSSHTunnel(
 	}
 
 	conn, err := ssh.Dial("tcp",
-		fmt.Sprintf("%s:%d", sshServer, sshOutboundPort),
+		net.JoinHostPort(sshServer, strconv.Itoa(sshOutboundPort)),
 		sshConfig)
 	if err != nil {
 		fmt.Printf("%#v", err)
 		return nil, err
 	}
 
-	remoteListenEndpoint := fmt.Sprintf("%s:%d",
-		sshListenInterface, sshInboundPort)
+	remoteListenEndpoint := net.JoinHostPort(
+		sshListenInterface,
+		strconv.Itoa(sshInboundPort))
 	listener, err := conn.Listen("tcp", remoteListenEndpoint)
 	if err != nil {
 		return nil, err
