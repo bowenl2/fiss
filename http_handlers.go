@@ -11,6 +11,62 @@ import (
 	"strconv"
 )
 
+type ResponseFmt int
+const (
+	Html ResponseFmt = iota
+	Json
+	Csv
+)
+
+func makeListDirHandler(serverRoot string,
+	path string,
+	fileInfo os.FileInfo,
+	resFmt ResponseFmt) http.HandlerFunc {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+
+	})
+}
+
+func handleListDir(
+	rw http.ResponseWriter,
+	r *http.Request) {
+	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	dir, err := os.Open(path)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	defer dir.Close()
+
+	entries, err := dir.Readdir(0)
+	if err != nil {
+		internalErrorHandler(err, rw, r)
+		return
+	}
+
+	sort.Sort(FileSort(entries))
+
+	// The view should see the path as relative to the root
+	// (it should not care where the root is)
+	relPath, _ := filepath.Rel(serverRoot, path)
+	relPath = filepath.Clean(filepath.Join(string(filepath.Separator), relPath))
+	hostname, _ := os.Hostname()
+
+	// ViewModel
+	dl := DirectoryList{
+		Machine:  hostname,
+		Path:     relPath,
+		BaseInfo: fileInfo,
+		Entries:  entries,
+	}
+
+	err = render("directory-list.go.html", dl, rw)
+	if err != nil {
+		fmt.Printf("template rendering error: %v\n", err)
+	}
+}
+
 func handleListDirRecursive(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
 	rw.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w := csv.NewWriter(rw)
@@ -60,48 +116,6 @@ func handleListRoots(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleListDir(
-	serverRoot string,
-	path string,
-	fileInfo os.FileInfo,
-	rw http.ResponseWriter,
-	r *http.Request) {
-	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	dir, err := os.Open(path)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	defer dir.Close()
-
-	entries, err := dir.Readdir(0)
-	if err != nil {
-		internalErrorHandler(err, rw, r)
-		return
-	}
-
-	sort.Sort(FileSort(entries))
-
-	// The view should see the path as relative to the root
-	// (it should not care where the root is)
-	relPath, _ := filepath.Rel(serverRoot, path)
-	relPath = filepath.Clean(filepath.Join(string(filepath.Separator), relPath))
-	hostname, _ := os.Hostname()
-
-	// ViewModel
-	dl := DirectoryList{
-		Machine:  hostname,
-		Path:     relPath,
-		BaseInfo: fileInfo,
-		Entries:  entries,
-	}
-
-	err = render("directory-list.go.html", dl, rw)
-	if err != nil {
-		fmt.Printf("template rendering error: %v\n", err)
-	}
-}
 
 func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
 	content, err := os.Open(path)

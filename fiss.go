@@ -42,14 +42,23 @@ func makeHandler(root string) http.HandlerFunc {
 
 		// Intercept directories to perform listing
 		if fileInfo.IsDir() {
-			if req.FormValue("r") == "" {
-				handleListDir(absRoot, p, fileInfo, rw, req)
+			// HTML/JSON/CSV?
+			resFmt := req.FormValue("fmt")
+			if resFmt == "" {
+				resFmt = "html"
+			}
+
+			// Recursion?
+			recurse := req.FormValue("r") != ""
+			if recurse {
+				handleListDir(root, p, fileInfo, rw, req)
 			} else {
 				handleListDirRecursive(p, fileInfo, rw, req)
 			}
 			return
 		}
 
+	  	// If we get to this point, we're dealing with a regular file
 		handleFile(p, fileInfo, rw, req)
 	})
 }
