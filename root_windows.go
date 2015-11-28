@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"github.com/AllenDang/w32"
+	"os"
 )
 
 func listRootPaths() []string {
@@ -21,7 +21,7 @@ func listRootInfos() ([]os.FileInfo, []error) {
 	paths := listRootPaths()
 	infos := make([]os.FileInfo, 0, len(paths))
 	errors := make([]error, 0, len(paths))
-	for path := range paths {
+	for _, path := range paths {
 		info, err := os.Stat(path)
 		if err != nil {
 			errors = append(errors, err)
