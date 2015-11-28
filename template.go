@@ -3,12 +3,12 @@ package main
 import (
 	"github.com/kr/pretty"
 	"html/template"
-	"os"
 	"io"
+	"os"
 	"path/filepath"
 )
 
-func render(viewName string, viewModel interface{}, w io.Writer) (error) {
+func render(viewName string, viewModel interface{}, w io.Writer) error {
 	layoutAsset, err := Asset("layout.go.html")
 	if err != nil {
 		return err
@@ -27,7 +27,9 @@ func render(viewName string, viewModel interface{}, w io.Writer) (error) {
 		},
 		"relpath": func(f os.FileInfo) string {
 			// Path relative to the base of root of the server
-			return filepath.Join(viewModel.(DirectoryList).Path, f.Name())
+			return filepath.Join(
+				viewModel.(DirectoryList).Path,
+				f.Name())
 		},
 		"prettyfmt": pretty.Formatter,
 	}
