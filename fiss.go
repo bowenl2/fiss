@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net"
-	//"github.com/moovweb/golog"
 	"net/http"
 	"os"
 	"path"
@@ -24,8 +23,6 @@ func makeTCPListener(localInterface string, port int) (net.Listener, error) {
 }
 
 func main() {
-//	log := golog.NewLogger("fiss: ")
-//	log.AddProcessor("console", golog.NewConsoleProcessor(golog.LOG_DEBUG, true))
 	options, err := parseOptions()
 	if err != nil {
 		return

@@ -5,7 +5,8 @@
 fiss is a fast, lightweight HTTP file server written in Go.
 
 ## Usage:
-```text
+
+```none
 $ fiss [OPTIONS]
 
 Usage:
