@@ -1,5 +1,5 @@
 #!/bin/bash
 PWD="$(dirname $0)"
-pushd $PWD
+pushd "${PWD}" > /dev/null
 go-bindata -prefix="templates/" templates/
-popd
+popd > /dev/null

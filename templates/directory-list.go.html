@@ -57,7 +57,9 @@
     <tbody>
       {{range .Entries}}
         <tr class="{{if .IsDir}}info{{end}}" data-path="{{pathfmt .}}">
-          <td>{{.Name}}</td>
+          <td>
+            <a href="{{pathfmt .}}">{{.Name}}</a>
+          </td>
           <td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
           {{if .IsDir}}
             <td class="text-right"></td>
@@ -71,7 +73,7 @@
                 <i class="fa fa-download"></i>
               </a>
             {{end}}
-            <a href="{{pathfmt .}}">
+            <a href="{{pathfmt .}}" target="_blank">
               <i class="fa fa-external-link"></i>
             </a>
           </td>
