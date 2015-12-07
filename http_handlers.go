@@ -11,7 +11,10 @@ import (
 	"strconv"
 )
 
-func handleListDirRecursive(root string, fileInfo os.FileInfo, rw http.ResponseWriter, _ *http.Request) {
+func handleListDirRecursive(
+	root string, fileInfo os.FileInfo,
+	rw http.ResponseWriter, _ *http.Request) {
+
 	rw.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w := csv.NewWriter(rw)
 	w.Write([]string{"Path", "Modified", "Size", "Mode"})
@@ -86,15 +89,18 @@ func handleListDir(
 	// The view should see the path as relative to the root
 	// (it should not care where the root is)
 	relPath, _ := filepath.Rel(serverRoot, path)
-	relPath = filepath.Clean(filepath.Join(string(filepath.Separator), relPath))
+	relPath = filepath.Clean(
+		filepath.Join(
+			string(filepath.Separator), relPath))
 	hostname, _ := os.Hostname()
 
 	// ViewModel
 	dl := DirectoryList{
-		Machine:  hostname,
-		Path:     relPath,
-		BaseInfo: fileInfo,
-		Entries:  entries,
+		Machine:     hostname,
+		Path:        relPath,
+		BaseInfo:    fileInfo,
+		Entries:     entries,
+		BreadCrumbs: makeBreadCrumbs(relPath),
 	}
 
 	err = render("directory-list.go.html", dl, rw)

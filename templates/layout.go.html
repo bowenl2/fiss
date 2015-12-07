@@ -2,80 +2,19 @@
 <html>
   <head>
     <title>
-    {{template "TTitle" .}}
+      {{template "TTitle" .}}
     </title>
-    <link href='//fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script>
-    $(function(){
-	$("tr[data-path]").click(function() {
-	    window.location.href = $(this).data("path");
-	  });
-      });
-    </script>
-    <style>
-    body
-    {
-      background-color: #101010;
-      color: #efefef;
-      font-family: 'Ubuntu Mono', '';
-      padding-left: 10px;
-    }
-    table tr > :not(:first-child) { white-space: nowrap; width: 1px;}
-    table
-    {
-      margin-top: 15px;
-      width: 90%;
-    }
-    th
-    {
-      text-align:left;
-      padding: 5px 15px 5px 15px;
-    }
-
-    td, th
-    {
-      padding-left: 5px;
-      padding-right: 5px;
-      text-align: left;
-    }
-    td
-    {
-      cursor: pointer;
-    }
-    .numeric
-    {
-      text-align: right;
-      white-space: pre;
-    }
-
-    tr:nth-child(odd)
-    {
-      background-color: #303030;
-    }
-
-    tbody tr:hover
-    {
-      background-color: #000000;
-    }
-
-    tr.directory
-    {
-       background-color: #606060;
-    }
-
-    th
-    {
-      background-color: #606060;
-    }
-
-    a
-    {
-      color: #efefef;
-    }
-    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   </head>
   <body>
-    {{template "TContent" .}}
+    <div class="container">
+      <div class="col-xs-11">
+        {{template "TContent" .}}
+      </div>
+    </div>
   </body>
 </html>

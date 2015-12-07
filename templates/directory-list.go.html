@@ -1,37 +1,84 @@
 {{define "TTitle"}}
-  {{.Machine}} &gt; {{.Path}}
+{{.Machine}} &gt; {{.Path}}
 {{end}}
 
 {{define "TContent"}}
-<h1>{{.Path}}</h1>
-<div>
-  {{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
-  {{.BaseInfo.Mode}} -
-  <a href="?r=1">Recursive List</a>
+<style type="text/css">
+ ul.crumb { padding-left: 0; }
+ li.crumb { display: inline; list-style-type: none; }
+ li.crumb:after { content: " / "; }
+ li.crumb:last-child:before { content: ""; }
+ li.crumb:last-child:after { content: ""; }
+</style>
+
+<div class="row well" style="margin-top:15px">
+  <div class="col-xs-8">
+    <h3>
+      <ul class="crumb">
+        {{range .BreadCrumbs}}
+          <li class="crumb">
+            <a href="{{.Link}}">{{.Basename}}</a>
+          </li>
+        {{end}}
+      </ul>
+    </h3>
+    {{.BaseInfo.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}
+    {{.BaseInfo.Mode}}
+    <div>{{.Path}}</div>
+  </div>
+  <div class="col-xs-4 text-right">
+    <div class="btn-group-vertical" role="group">
+      <a class="btn btn-info" href="?r=1">
+        <i class="fa fa-list"></i>
+        Recursive List
+      </a>
+      <a class="btn btn-primary" href="/">
+        <i class="fa fa-home"></i>
+        Home
+      </a>
+      <a class="btn btn-warning" href="../">
+        <i class="fa fa-level-up"></i>
+        Parent
+      </a>
+    </div>
+  </div>
 </div>
-<div>
-  <table>
+<div class="row">
+  <table class="table table-striped table-hover table-bordered">
     <thead>
       <tr>
-	<th>Name</th>
-	<th>Modified</th>
-	<th class="numeric">Size</th>
-	<th>Mode</th>
+        <th>Name</th>
+        <th>Modified</th>
+        <th class="text-right">Size</th>
+        <th>Mode</th>
+        <th>DL</th>
       </tr>
     </thead>
     <tbody>
       {{range .Entries}}
-      <tr title="{{printf "%#v" .Sys}}" data-path="{{relpath .}}" class="{{if .IsDir}}directory{{end}}">
-	<td>{{.Name}}</td>
-	<td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
-					{{if .IsDir}}
-	<td class="numeric"></td>
-					{{else}}
-	<td class="numeric">{{.Size | fmtsize}}</td>
-					{{end}}
-	<td>{{.Mode}}</td>
-      </tr>
-	{{end}}
+        <tr class="{{if .IsDir}}info{{end}}" data-path="{{pathfmt .}}">
+          <td>
+            <a href="{{pathfmt .}}">{{.Name}}</a>
+          </td>
+          <td>{{.ModTime.Format "2006-01-02 15:04:05 -0700 MST"}}</td>
+          {{if .IsDir}}
+            <td class="text-right"></td>
+          {{else}}
+            <td class="text-right">{{.Size | sizefmt}}</td>
+          {{end}}
+          <td>{{.Mode}}</td>
+          <td>
+            {{if not .IsDir}}
+              <a href="{{pathfmt .}}?dl=1">
+                <i class="fa fa-download"></i>
+              </a>
+            {{end}}
+            <a href="{{pathfmt .}}" target="_blank">
+              <i class="fa fa-external-link"></i>
+            </a>
+          </td>
+        </tr>
+      {{end}}
     </tbody>
   </table>
 </div>

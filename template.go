@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/kr/pretty"
+	"fmt"
 	"html/template"
 	"io"
 	"os"
-	"path/filepath"
+	"path"
+
+	"github.com/kr/pretty"
 )
 
 func render(viewName string, viewModel interface{}, w io.Writer) error {
@@ -22,14 +24,24 @@ func render(viewName string, viewModel interface{}, w io.Writer) error {
 	contentString := string(contentAsset)
 
 	tmplFuncs := map[string]interface{}{
-		"fmtsize": func(s int64) string {
+		"sizefmt": func(s int64) string {
 			return ByteSize(s).String()
 		},
-		"relpath": func(f os.FileInfo) string {
+		"pathfmt": func(f os.FileInfo) template.URL {
 			// Path relative to the base of root of the server
-			return filepath.Join(
+			path := path.Join(
 				viewModel.(DirectoryList).Path,
 				f.Name())
+			if f.IsDir() {
+				path = fmt.Sprintf("%s/", path)
+			}
+			return template.URL(path)
+		},
+		"archivepath": func() template.URL {
+			return template.URL(
+				path.Join("/", "thumbs",
+					viewModel.(DirectoryList).Path))
+
 		},
 		"prettyfmt": pretty.Formatter,
 	}
