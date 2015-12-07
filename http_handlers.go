@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"time"
 )
 
 func handleListDirRecursive(
@@ -18,15 +20,16 @@ func handleListDirRecursive(
 	rw.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w := csv.NewWriter(rw)
 	w.Write([]string{"Path", "Modified", "Size", "Mode"})
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		w.Write([]string{
-			filepath.Join(root, path),
-			info.ModTime().Format("2006-01-02 15:04:05 -0700 MST"),
-			strconv.Itoa(int(info.Size())),
-			info.Mode().String(),
+	err := filepath.Walk(root,
+		func(path string, info os.FileInfo, err error) error {
+			w.Write([]string{
+				filepath.Join(root, path),
+				info.ModTime().Format("2006-01-02 15:04:05 -0700 MST"),
+				strconv.Itoa(int(info.Size())),
+				info.Mode().String(),
+			})
+			return nil // Never stop the function!
 		})
-		return nil // Never stop the function!
-	})
 	if err != nil {
 		io.WriteString(rw, fmt.Sprintf("\nERROR: %v", err))
 	}
@@ -117,4 +120,31 @@ func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *ht
 	}
 
 	http.ServeContent(rw, r, path, fileInfo.ModTime(), content)
+}
+
+func handleCreateArchive(p string, fileInfo os.FileInfo,
+	rw http.ResponseWriter, r *http.Request) {
+
+	if !fileInfo.IsDir() {
+		err := errors.New(
+			"cannot make archive of non-directory")
+		internalErrorHandler(err, rw, r)
+		return
+	}
+
+	p, err := MakeArchive(p)
+	if err != nil {
+		internalErrorHandler(err, rw, r)
+		return
+	}
+	defer os.Remove(p) // once served, don't hang around.
+
+	archiveFile, err := os.Open(p)
+	if err != nil {
+		internalErrorHandler(err, rw, r)
+		return
+	}
+	defer archiveFile.Close()
+
+	http.ServeContent(rw, r, filepath.Base(p), time.Now(), archiveFile)
 }

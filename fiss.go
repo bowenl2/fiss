@@ -45,6 +45,11 @@ func main() {
 
 		fmt.Printf("req: %v %v\n", req.RemoteAddr, p)
 
+		if req.FormValue("fmt") == "zip" {
+			handleCreateArchive(p, fileInfo, rw, req)
+			return
+		}
+
 		// Intercept directories to perform listing
 		if fileInfo.IsDir() {
 			if req.FormValue("r") == "" {
@@ -55,8 +60,8 @@ func main() {
 			return
 		}
 
+		// At this point we must be at a file
 		handleFile(p, fileInfo, rw, req)
-
 	})
 
 	// Determine where to listen for connections
