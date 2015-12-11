@@ -66,17 +66,7 @@ func main() {
 
 	// Determine where to listen for connections
 	var listener net.Listener
-	switch options.UseSSHTunnel {
-	case false:
-		listener, err = makeTCPListener(options.Address, options.Port)
-		fmt.Printf(
-			"%s: %s:%d %s\n",
-			os.Args[0],
-			options.Address,
-			options.Port,
-			absRoot)
-
-	case true:
+	if options.UseSSHTunnel {
 		listener, err = makeSSHTunnel(
 			options.Username,
 			options.SSHServer,
@@ -91,6 +81,14 @@ func main() {
 			options.SSHListenInterface,
 			options.SSHInboundPort,
 			options.PrivateKeyPath)
+	} else {
+		listener, err = makeTCPListener(options.Address, options.Port)
+		fmt.Printf(
+			"%s: %s:%d %s\n",
+			os.Args[0],
+			options.Address,
+			options.Port,
+			absRoot)
 	}
 
 	if err != nil {
