@@ -42,7 +42,7 @@ type breadCrumb struct {
 }
 
 func joinBreadCrumb(segs ...string) string {
-	return fmt.Sprintf("/fs/%s",
+	return fmt.Sprintf("/%s",
 		strings.TrimSpace(
 			strings.Join(segs, "/")))
 }
