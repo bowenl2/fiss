@@ -46,24 +46,6 @@ func internalErrorHandlerFunc(
 	}
 }
 
-func handleListRoots(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	hostname, _ := os.Hostname()
-	rootInfos, errors := listRootInfos()
-
-	viewModel := RootListViewModel{
-		Machine:   hostname,
-		RootInfos: rootInfos,
-		Errors:    errors,
-	}
-
-	err := render("root-list.go.html", viewModel, rw)
-	if err != nil {
-		fmt.Printf("template rendering error: %v\n", err)
-	}
-}
-
 func directoryListHandlerFunc(
 	rw http.ResponseWriter, r *http.Request, c Context) error {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
