@@ -112,13 +112,16 @@ func handleListDir(
 	}
 }
 
-func handleFile(path string, fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
+func handleFile(path string,
+	fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
 	content, err := os.Open(path)
 	if err != nil {
 		internalErrorHandler(err, rw, r)
 		return
 	}
-
+	if r.FormValue("dl") != "" {
+		rw.Header().Set("Content-Type", "application/octet-stream")
+	}
 	http.ServeContent(rw, r, path, fileInfo.ModTime(), content)
 }
 
