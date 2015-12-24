@@ -28,11 +28,11 @@
   </div>
   <div class="col-xs-4 text-right">
     <div class="btn-group-vertical" role="group">
-      <a class="btn btn-info" href="?r=1">
+      <a class="btn btn-info" href="?fmt=csv">
         <i class="fa fa-list"></i>
         Recursive List
       </a>
-      <a class="btn btn-danger" href="?fmt=zip">
+      <a class="btn btn-danger" href="?fmt=dl">
         <i class="fa fa-file-archive-o"></i>
         Archive
       </a>
@@ -73,7 +73,7 @@
           <td>{{.Mode}}</td>
           <td>
             {{if not .IsDir}}
-              <a href="{{pathfmt .}}?dl=1">
+              <a href="{{pathfmt .}}?fmt=dl">
                 <i class="fa fa-download"></i>
               </a>
             {{end}}
