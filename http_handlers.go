@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,29 +12,28 @@ import (
 	"time"
 )
 
-func handleListDirRecursive(
-	root string, fileInfo os.FileInfo,
-	rw http.ResponseWriter, _ *http.Request) {
+func recursiveDirectoryHandlerFunc(
+	rw http.ResponseWriter, r *http.Request, c Context) error {
 
 	rw.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w := csv.NewWriter(rw)
 	w.Write([]string{"Path", "Modified", "Size", "Mode"})
-	err := filepath.Walk(root,
+	return filepath.Walk(c.FSPath,
 		func(path string, info os.FileInfo, err error) error {
 			w.Write([]string{
-				filepath.Join(root, path),
+				filepath.Join(c.FSPath, path),
 				info.ModTime().Format("2006-01-02 15:04:05 -0700 MST"),
 				strconv.Itoa(int(info.Size())),
 				info.Mode().String(),
 			})
 			return nil // Never stop the function!
 		})
-	if err != nil {
-		io.WriteString(rw, fmt.Sprintf("\nERROR: %v", err))
-	}
 }
 
-func internalErrorHandler(err error, rw http.ResponseWriter, r *http.Request) {
+// Handle errors encountered while processing requests
+// Not an AppHandlerFunc
+func internalErrorHandlerFunc(
+	rw http.ResponseWriter, r *http.Request, c Context, err error) {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 	rw.WriteHeader(500)
 
@@ -66,88 +64,74 @@ func handleListRoots(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleListDir(
-	serverRoot string,
-	path string,
-	fileInfo os.FileInfo,
-	rw http.ResponseWriter,
-	r *http.Request) {
+func directoryListHandlerFunc(
+	rw http.ResponseWriter, r *http.Request, c Context) error {
 	rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	dir, err := os.Open(path)
+	dir, err := os.Open(c.FSPath)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
 	defer dir.Close()
 
 	entries, err := dir.Readdir(0)
 	if err != nil {
-		internalErrorHandler(err, rw, r)
-		return
+		return err
 	}
 
+	// FIXME: Use gen to simplify this stuff
 	sort.Sort(FileSort(entries))
 
 	// The view should see the path as relative to the root
 	// (it should not care where the root is)
-	relPath, _ := filepath.Rel(serverRoot, path)
+	relPath, _ := filepath.Rel(c.App.RootPath, c.FSPath)
 	relPath = filepath.Clean(
-		filepath.Join(
-			string(filepath.Separator), relPath))
+		filepath.Join(string(filepath.Separator), relPath))
 	hostname, _ := os.Hostname()
 
 	// ViewModel
 	dl := DirectoryList{
 		Machine:     hostname,
 		Path:        relPath,
-		BaseInfo:    fileInfo,
+		BaseInfo:    c.FSInfo,
 		Entries:     entries,
 		BreadCrumbs: makeBreadCrumbs(relPath),
 	}
 
-	err = render("directory-list.go.html", dl, rw)
-	if err != nil {
-		fmt.Printf("template rendering error: %v\n", err)
-	}
+	return render("directory-list.go.html", dl, rw)
 }
 
-func handleFile(path string,
-	fileInfo os.FileInfo, rw http.ResponseWriter, r *http.Request) {
-	content, err := os.Open(path)
+func fileHandlerFunc(
+	rw http.ResponseWriter, r *http.Request, c Context) error {
+	content, err := os.Open(c.FSPath)
 	if err != nil {
-		internalErrorHandler(err, rw, r)
-		return
+		return err
 	}
-	if r.FormValue("dl") != "" {
+	if c.Format == FmtForceDownload {
 		rw.Header().Set("Content-Type", "application/octet-stream")
 	}
-	http.ServeContent(rw, r, path, fileInfo.ModTime(), content)
+	http.ServeContent(rw, r, c.FSPath, c.FSInfo.ModTime(), content)
+	return nil
 }
 
-func handleCreateArchive(p string, fileInfo os.FileInfo,
-	rw http.ResponseWriter, r *http.Request) {
+func archiveHandlerFunc(
+	rw http.ResponseWriter, r *http.Request, c Context) error {
 
-	if !fileInfo.IsDir() {
-		err := errors.New(
-			"cannot make archive of non-directory")
-		internalErrorHandler(err, rw, r)
-		return
-	}
-
-	p, err := MakeArchive(p)
+	p, err := MakeArchive(c.FSPath)
 	if err != nil {
-		internalErrorHandler(err, rw, r)
-		return
+		return err
 	}
 	defer os.Remove(p) // once served, don't hang around.
 
 	archiveFile, err := os.Open(p)
 	if err != nil {
-		internalErrorHandler(err, rw, r)
-		return
+		return err
 	}
 	defer archiveFile.Close()
 
-	http.ServeContent(rw, r, filepath.Base(p), time.Now(), archiveFile)
+	http.ServeContent(rw, r,
+		fmt.Sprintf("%s.zip", filepath.Base(p)),
+		time.Now(),
+		archiveFile)
+	return nil
 }

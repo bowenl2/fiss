@@ -84,6 +84,12 @@ func directoryHandlerFunc(
 	switch c.Format {
 	case FmtForceDownload:
 		return archiveHandlerFunc(rw, r, c)
+	case FmtCSV:
+		return recursiveDirectoryHandlerFunc(rw, r, c)
 	}
+	// FIXME: Implement JSON
+	// FIXME: Separate CSV from Recursive
+	// -- there should be non-recursive CSV and archives
+	// -- there should be recursive HTML and JSON
 	return directoryListHandlerFunc(rw, r, c)
 }
