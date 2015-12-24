@@ -5,9 +5,41 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
 )
+
+// ResponseFormat specifies format in which to render response
+type ResponseFormat uint32
+
+const (
+	// FmtAuto automatically determines a reasonable choice
+	FmtAuto ResponseFormat = iota
+	// FmtHTML forces rendering in HTML (directory only)
+	FmtHTML
+	// FmtJSON forces rendering in JSON (directory only)
+	FmtJSON
+	// FmtCSV forces rendering in CSV (directory only)
+	FmtCSV
+	// FmtForceDownload forces the response to download a file,
+	// which involves creating a ZIP archive for a directory
+	FmtForceDownload
+)
+
+// Context of environment relevant to handlers
+type Context struct {
+	// AppHandler describes the application context
+	App *AppHandler
+	// Recursive specifies that the response associated with the
+	// request path should recursively include data from subdirectories
+	// FIXME: Not implemented
+	Recursive bool
+	// Response Format
+	Format ResponseFormat
+	// Absolute filesystem path to file
+	FSPath string
+	// FSPath Stat
+	FSInfo os.FileInfo
+}
 
 func makeTCPListener(localInterface string, port int) (net.Listener, error) {
 	addr := &net.TCPAddr{
@@ -25,44 +57,15 @@ func makeTCPListener(localInterface string, port int) (net.Listener, error) {
 func main() {
 	options, err := parseOptions()
 	if err != nil {
-		return
+		fmt.Printf("fatal: %v", err)
+		os.Exit(1)
 	}
+
 	absRoot, _ := filepath.Abs(options.Root)
-
-	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
-		p := filepath.Join(absRoot, path.Clean(req.URL.Path))
-		p, err := filepath.Abs(p)
-		if err != nil {
-			internalErrorHandler(err, rw, req)
-			return
-		}
-
-		fileInfo, err := os.Stat(p)
-		if err != nil {
-			internalErrorHandler(err, rw, req)
-			return
-		}
-
-		fmt.Printf("req: %v %v\n", req.RemoteAddr, p)
-
-		if req.FormValue("fmt") == "zip" {
-			handleCreateArchive(p, fileInfo, rw, req)
-			return
-		}
-
-		// Intercept directories to perform listing
-		if fileInfo.IsDir() {
-			if req.FormValue("r") == "" {
-				handleListDir(absRoot, p, fileInfo, rw, req)
-			} else {
-				handleListDirRecursive(p, fileInfo, rw, req)
-			}
-			return
-		}
-
-		// At this point we must be at a file
-		handleFile(p, fileInfo, rw, req)
-	})
+	app := &AppHandler{
+		RootPath: absRoot,
+	}
+	http.Handle("/", app)
 
 	// Determine where to listen for connections
 	var listener net.Listener
