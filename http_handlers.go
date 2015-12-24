@@ -68,7 +68,7 @@ func directoryListHandlerFunc(
 	// (it should not care where the root is)
 	relPath, _ := filepath.Rel(c.App.RootPath, c.FSPath)
 	relPath = filepath.Clean(
-		filepath.Join(string(filepath.Separator), relPath))
+		filepath.Join("/", relPath))
 	hostname, _ := os.Hostname()
 
 	// ViewModel

@@ -28,6 +28,7 @@ func (l FileSort) Less(i, j int) bool {
 	return l[i].Name() < l[j].Name()
 }
 
+// DirectoryList is a View Model for a single (possibly recursive) listing
 type DirectoryList struct {
 	Machine     string
 	Path        string
