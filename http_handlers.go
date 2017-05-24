@@ -117,3 +117,33 @@ func archiveHandlerFunc(
 		archiveFile)
 	return nil
 }
+
+func loginHandlerFunc(rw http.ResponseWriter, r *http.Request, c Context) {
+	if c.App.Password == "" {
+		fmt.Println("login handler called when no password required")
+		rw.Header().Add("Location", "/")
+		rw.WriteHeader(302)
+		return
+	}
+	if r.Method == http.MethodPost {
+		if r.FormValue("password") == c.App.Password {
+			c.Session.Values["auth"] = true
+			err := c.Session.Save(r, rw)
+			if err != nil {
+				panic(err)
+			}
+			rw.Header().Add("Location", "/")
+			rw.WriteHeader(302)
+			return
+		}
+		err := render("login.html", struct{ Unauthorized bool }{Unauthorized: true}, rw)
+		if err != nil {
+			panic(err)
+		}
+	}
+	err := render("login.html", nil, rw)
+	if err != nil {
+		internalErrorHandlerFunc(rw, r, Context{}, err)
+	}
+
+}
