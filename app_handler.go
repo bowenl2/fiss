@@ -6,6 +6,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/gorilla/sessions"
 )
 
 // AppHandlerFunc defines a function which acts as a context-aware HTTP handler
@@ -16,13 +18,25 @@ type AppHandlerFunc func(http.ResponseWriter, *http.Request, Context) error
 type AppHandler struct {
 	// Request paths are considered relative to RootPath
 	RootPath string
+	// SessionSecret specifies the secret one must have to be considered authenticated (not per-user)
+	SessionSecret string
+	// SessionStore
+	Store sessions.Store
+	// Password (everyone has the same password)
+	Password string
 }
 
 func (h *AppHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	session, _ := h.Store.Get(r, sessionKey)
 	c := Context{
 		App:       h,
 		Recursive: r.URL.Query().Get("r") != "",
 		Format:    parseFmt(r.URL.Query().Get("fmt")),
+		Session:   session,
+	}
+	if r.URL.Path == "/login" {
+		loginHandlerFunc(rw, r, c)
+		return
 	}
 
 	err := fissBaseHandlerFunc(rw, r, c)
@@ -31,8 +45,14 @@ func (h *AppHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func fissBaseHandlerFunc(
-	rw http.ResponseWriter, r *http.Request, c Context) error {
+func fissBaseHandlerFunc(rw http.ResponseWriter, r *http.Request, c Context) error {
+	if c.App.Password != "" {
+		if _, ok := c.Session.Values["auth"]; !ok {
+			rw.Header().Add("Location", "/login")
+			rw.WriteHeader(302)
+			return nil
+		}
+	}
 	// Fill in filesystem details
 	p := filepath.Join(
 		c.App.RootPath,
