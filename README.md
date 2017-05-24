@@ -24,6 +24,8 @@ Application Options:
   --ssh-outbound-port=        Port on which to connect to SSH server (22)
   -l, --ssh-inbound-port=     Port on which the SSH server should listen for incoming requests
   -i, --ssh-listen-interface= Interface on which the SSH server should listen (0.0.0.0)
+  --password=                 Password required to authenticate (otherwise,
+                              anonymous access is allowed)
 
 Help Options:
   -h, --help                  Show this help message

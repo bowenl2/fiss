@@ -1,0 +1,13 @@
+[Unit]
+Description=FISS
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/media
+ExecStart=/usr/local/bin/fiss
+User=nobody
+Group=nobody
+
+[Install]
+WantedBy=multi-user.target
