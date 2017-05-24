@@ -1,11 +1,16 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/gorilla/context"
+	"github.com/gorilla/sessions"
 )
 
 // ResponseFormat specifies format in which to render response
@@ -39,6 +44,8 @@ type Context struct {
 	FSPath string
 	// FSPath Stat
 	FSInfo os.FileInfo
+	// Session
+	Session *sessions.Session
 }
 
 func makeTCPListener(localInterface string, port int) (net.Listener, error) {
@@ -54,6 +61,10 @@ func makeTCPListener(localInterface string, port int) (net.Listener, error) {
 	return listener, err
 }
 
+const (
+	sessionKey = "fiss_session"
+)
+
 func main() {
 	options, err := parseOptions()
 	if err != nil {
@@ -62,10 +73,16 @@ func main() {
 	}
 
 	absRoot, _ := filepath.Abs(options.Root)
+	secretMaterial := make([]byte, 0, 32)
+	rand.Read(secretMaterial)
+	sessionSecret := hex.EncodeToString(secretMaterial)
 	app := &AppHandler{
-		RootPath: absRoot,
+		RootPath:      absRoot,
+		SessionSecret: sessionSecret,
+		Store:         sessions.NewCookieStore(secretMaterial),
+		Password:      options.HTTPPassword,
 	}
-	http.Handle("/", app)
+	http.Handle("/", context.ClearHandler(app))
 
 	// Determine where to listen for connections
 	var listener net.Listener
