@@ -4,10 +4,14 @@ Fiss &gt; Login
 
 {{define "TContent"}}
 <form method="POST" action="/login">
-
     <h1>Login</h1>
     <div class="row">
       <div class="well" style="padding: 30px">
+        {{ if .Unauthorized }}
+        <div class="alert alert-danger">
+          Wrong password
+        </div>
+        {{ end }}
         <div class="form-group">
           <input type="password" placeholder="Password" name="password" class="form-control">
         </div>
