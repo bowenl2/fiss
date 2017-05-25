@@ -76,6 +76,9 @@
               <a href="{{pathfmt .}}?fmt=dl">
                 <i class="fa fa-download"></i>
               </a>
+              <a href="javascript:unlinkFile('{{ pathfmt . }}');">
+                <i class="fa fa-times-circle"></i>
+              </a>
             {{end}}
             <a href="{{pathfmt .}}" target="_blank">
               <i class="fa fa-external-link"></i>
