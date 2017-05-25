@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -81,6 +83,20 @@ func directoryListHandlerFunc(
 	}
 
 	return render("directory-list.go.html", dl, rw)
+}
+
+func assetHandlerFunc(rw http.ResponseWriter, r *http.Request) {
+	assetInfo, err := AssetInfo(r.URL.Path)
+	if err != nil {
+		fmt.Printf("asset error for path: %v: %+v\n", r.URL.Path, err)
+		rw.WriteHeader(404)
+		return
+	}
+
+	contents := MustAsset(r.URL.Path)
+	baseName := path.Base(r.URL.Path)
+	http.ServeContent(rw, r, baseName,
+		assetInfo.ModTime(), bytes.NewReader(contents))
 }
 
 func fileHandlerFunc(
