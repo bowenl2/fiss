@@ -82,7 +82,7 @@ func main() {
 		Store:         sessions.NewCookieStore(secretMaterial),
 		Password:      options.HTTPPassword,
 	}
-	http.HandleFunc("/assets",assetHandlerFunc)
+	http.HandleFunc("/assets", assetHandlerFunc)
 	http.Handle("/", context.ClearHandler(app))
 
 	// Determine where to listen for connections
